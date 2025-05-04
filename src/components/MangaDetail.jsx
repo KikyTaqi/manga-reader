@@ -20,7 +20,9 @@ const MangaDetail = ({ mangaId, lang, onSelectChapter }) => {
       setLoading(true);
       try {
         const [mangaRes, chaptersRes] = await Promise.all([
-          axios.get(`/api/manga/detail?mangaId=${mangaId}&includes[]=cover_art`),
+          axios.get(
+            `/api/manga/detail?mangaId=${mangaId}&includes[]=cover_art`
+          ),
           axios.get(
             `/api/manga/chapter/feed?mangaId=${mangaId}&lang=${lang}&order[chapter]=asc`,
             {
@@ -28,11 +30,7 @@ const MangaDetail = ({ mangaId, lang, onSelectChapter }) => {
                 "Cache-Control": "no-cache",
               },
             }
-          )
-          .then((res) => {
-            console.log("Chapters response:", res.data); // ← CEK DATA DI SINI
-            setChapters(res.data.data || []);
-          })
+          ),
         ]);
 
         setManga(mangaRes.data?.data || null);
@@ -71,7 +69,8 @@ const MangaDetail = ({ mangaId, lang, onSelectChapter }) => {
     ? `https://uploads.mangadex.org/covers/${manga.id}/${cover.attributes.fileName}.256.jpg`
     : "";
 
-  const synopsis = manga.attributes.description?.[lang] || "No synopsis available.";
+  const synopsis =
+    manga.attributes.description?.[lang] || "No synopsis available.";
   const genres = manga.attributes.tags || [];
 
   return (
