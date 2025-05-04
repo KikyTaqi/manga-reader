@@ -54,6 +54,7 @@ const MangaList = ({ lang, searchQuery, pageNumber }) => {
                   <img
                     src={coverUrl}
                     alt="cover"
+                    referrerPolicy="no-referrer"
                     className="w-full aspect-w-2 aspect-h-3 object-cover rounded shadow-lg"
                   />
                 ) : (
