@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom"; // Tambahkan useLocation
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 
 const MangaDetail = ({ mangaId, lang, onSelectChapter }) => {
   const [manga, setManga] = useState(null);
   const [chapters, setChapters] = useState([]);
   const navigate = useNavigate();
-  const location = useLocation(); // Tambahkan ini
+  const location = useLocation();
 
   const from = location.state?.from || "/";
 
@@ -16,13 +16,13 @@ const MangaDetail = ({ mangaId, lang, onSelectChapter }) => {
 
   useEffect(() => {
     axios
-      .get(`/api/manga/${mangaId}?includes[]=cover_art`) // ← gunakan proxy
+      .get(`https://api.mangadex.org/manga/${mangaId}?includes[]=cover_art`)
       .then((res) => setManga(res.data.data))
       .catch((err) => console.error("Failed to fetch manga detail:", err));
 
     axios
       .get(
-        `/api/manga/${mangaId}/feed?translatedLanguage[]=${lang}&order[chapter]=asc` // ← gunakan proxy
+        `https://api.mangadex.org/manga/${mangaId}/feed?translatedLanguage[]=${lang}&order[chapter]=asc`
       )
       .then((res) => setChapters(res.data.data))
       .catch((err) => console.error("Failed to fetch chapters:", err));
