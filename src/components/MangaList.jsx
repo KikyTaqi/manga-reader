@@ -27,6 +27,10 @@ const MangaList = ({ lang, searchQuery, pageNumber }) => {
     fetchManga();
   }, [lang, searchQuery, pageNumber]);
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [pageNumber]);
+
   const totalPages = Math.ceil(total / 12);
 
   return (

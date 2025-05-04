@@ -16,6 +16,10 @@ const MangaDetail = ({ mangaId, lang, onSelectChapter }) => {
   };
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [pageNumber]);
+
+  useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
