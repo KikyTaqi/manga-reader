@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom"; // Tambahkan useLocation
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const MangaDetail = ({ mangaId, lang, onSelectChapter }) => {
   const [manga, setManga] = useState(null);
   const [chapters, setChapters] = useState([]);
   const navigate = useNavigate();
-  const location = useLocation(); // Tambahkan ini
-
-  const from = location.state?.from || "/";
+  const from = location.state?.from || '/';
 
   const handleBack = () => {
     navigate(from);
@@ -16,16 +14,14 @@ const MangaDetail = ({ mangaId, lang, onSelectChapter }) => {
 
   useEffect(() => {
     axios
-      .get(`/api/manga/${mangaId}?includes[]=cover_art`) // ← gunakan proxy
-      .then((res) => setManga(res.data.data))
-      .catch((err) => console.error("Failed to fetch manga detail:", err));
+      .get(`https://api.mangadex.org/manga/${mangaId}?includes[]=cover_art`)
+      .then((res) => setManga(res.data.data));
 
     axios
       .get(
-        `/api/manga/${mangaId}/feed?translatedLanguage[]=${lang}&order[chapter]=asc` // ← gunakan proxy
+        `https://api.mangadex.org/manga/${mangaId}/feed?translatedLanguage[]=${lang}&order[chapter]=asc`
       )
-      .then((res) => setChapters(res.data.data))
-      .catch((err) => console.error("Failed to fetch chapters:", err));
+      .then((res) => setChapters(res.data.data));
   }, [mangaId, lang]);
 
   if (!manga) {
@@ -53,7 +49,6 @@ const MangaDetail = ({ mangaId, lang, onSelectChapter }) => {
       >
         ← Back
       </button>
-
       <div className="flex flex-col sm:flex-row items-center mb-6">
         <div className="w-full sm:w-1/3 mb-4 sm:mb-0">
           {coverUrl && (
@@ -94,7 +89,6 @@ const MangaDetail = ({ mangaId, lang, onSelectChapter }) => {
           </div>
         </div>
       </div>
-
       <div>
         <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
           Chapters:
