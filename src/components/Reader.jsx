@@ -10,12 +10,8 @@ const Reader = ({ chapterId, pageNumber, onPageChange, onBackToManga }) => {
   useEffect(() => {
     const fetchChapter = async () => {
       try {
-        const res = await axios.get(`/api/at-home/server/${chapterId}`); // proxy endpoint
-        const { baseUrl, chapter } = res.data;
-        const urls = chapter.data.map(
-          (img) => `${baseUrl}/data/${chapter.hash}/${img}`
-        );
-        setPages(urls);
+        const res = await axios.get(`/api/reader?chapterId=${chapterId}`);
+        setPages(res.data.pages || []);
       } catch (error) {
         console.error("Failed to fetch chapter images:", error);
       }
@@ -115,7 +111,7 @@ const Reader = ({ chapterId, pageNumber, onPageChange, onBackToManga }) => {
               e.stopPropagation();
               toggleMode();
             }}
-            className="bg-black bg-opacity-60 text-white text-sm px-3 py-1 rounded sm:block"
+            className="bg-black bg-opacity-60 text-white text-sm px-3 py-1 rounded"
           >
             Mode: {mode === "fit" ? "Tinggi" : "Lebar"}
           </button>
