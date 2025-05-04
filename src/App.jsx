@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import Home from "./pages/Home";
-import MangaDetailPage from "./Pages/MangaDetailPage";
-import ReaderPage from "./Pages/ReaderPage";
+import MangaDetailPage from "./pages/MangaDetailPage";
+import ReaderPage from "./pages/ReaderPage";
 import { CiSearch } from "react-icons/ci";
 import { FaMoon, FaSun } from "react-icons/fa";
 
