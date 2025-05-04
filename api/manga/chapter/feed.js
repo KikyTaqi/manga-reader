@@ -1,17 +1,11 @@
 export default async function handler(req, res) {
-  const { mangaId, lang, limit, offset } = req.query;
+  const { mangaId, lang} = req.query;
 
   if (!mangaId) {
     return res.status(400).json({ error: "Missing mangaId" });
   }
 
-  const params = new URLSearchParams();
-  if (limit) params.append("limit", limit);
-  if (offset) params.append("offset", offset);
-  params.append("translatedLanguage[]", lang);
-  params.append("order[chapter]", "asc");
-
-  const url = `https://api.mangadex.org/manga/${mangaId}/feed?${params.toString()}`;
+  const url = `https://api.mangadex.org/manga/${mangaId}/feed?&translatedLanguage[]=${lang}&order[chapter]=asc`;
 
   try {
     const response = await fetch(url);
