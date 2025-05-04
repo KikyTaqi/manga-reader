@@ -16,7 +16,7 @@ const MangaList = ({ lang, searchQuery, pageNumber }) => {
         params.append("availableTranslatedLanguage[]", lang);
         if (searchQuery) params.append("title", searchQuery);
 
-        const res = await axios.get(`https://api.mangadex.org/manga?${params}`);
+        const res = await axios.get(`/api/manga?${params}`);
         setMangaList(res.data.data);
         setTotal(res.data.total);
       } catch (error) {
@@ -32,29 +32,33 @@ const MangaList = ({ lang, searchQuery, pageNumber }) => {
   return (
     <div className="p-4">
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-        {mangaList.map((manga) => {
-          const cover = manga.relationships.find((r) => r.type === "cover_art");
-          const coverUrl = `https://uploads.mangadex.org/covers/${manga.id}/${cover.attributes.fileName}.256.jpg`;
+        {Array.isArray(mangaList) &&
+          mangaList.map((manga) => {
+            const cover = manga.relationships.find((r) => r.type === "cover_art");
+            const coverUrl = cover
+              ? `https://uploads.mangadex.org/covers/${manga.id}/${cover.attributes?.fileName}.256.jpg`
+              : null;
 
-          return (
-            <Link
-              key={manga.id}
-              to={`/manga/${manga.id}`}
-              state={{ from: "/home" }}
-              className="cursor-pointer block dark:text-white"
-            >
-              <img
-                src={coverUrl}
-                alt="cover"
-                className="w-full aspect-w-2 aspect-h-3 object-cover rounded shadow-lg"
-              />
-
-              <h3 className="text-sm mt-2">
-                {manga.attributes.title?.en || "No Title"}
-              </h3>
-            </Link>
-          );
-        })}
+            return (
+              <Link
+                key={manga.id}
+                to={`/manga/${manga.id}`}
+                state={{ from: window.location.pathname }}
+                className="cursor-pointer block dark:text-white"
+              >
+                {coverUrl && (
+                  <img
+                    src={coverUrl}
+                    alt="cover"
+                    className="w-full aspect-w-2 aspect-h-3 object-cover rounded shadow-lg"
+                  />
+                )}
+                <h3 className="text-sm mt-2">
+                  {manga.attributes.title?.en || "No Title"}
+                </h3>
+              </Link>
+            );
+          })}
       </div>
 
       {/* Pagination */}

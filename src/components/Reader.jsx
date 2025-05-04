@@ -5,25 +5,27 @@ const Reader = ({ chapterId, pageNumber, onPageChange, onBackToManga }) => {
   const [pages, setPages] = useState([]);
   const [mode, setMode] = useState("fit");
   const [isLoading, setIsLoading] = useState(true);
-  const [showOverlay, setShowOverlay] = useState(true); // untuk transisi halus
+  const [showOverlay, setShowOverlay] = useState(true);
 
   useEffect(() => {
-    axios
-      .get(`https://api.mangadex.org/at-home/server/${chapterId}`)
-      .then((res) => {
+    const fetchChapter = async () => {
+      try {
+        const res = await axios.get(`/api/at-home/server/${chapterId}`); // proxy endpoint
         const { baseUrl, chapter } = res.data;
         const urls = chapter.data.map(
           (img) => `${baseUrl}/data/${chapter.hash}/${img}`
         );
         setPages(urls);
-      });
+      } catch (error) {
+        console.error("Failed to fetch chapter images:", error);
+      }
+    };
+
+    fetchChapter();
   }, [chapterId]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [pageNumber]);
-
-  useEffect(() => {
     setIsLoading(true);
     setShowOverlay(true);
   }, [pageNumber]);
@@ -33,33 +35,22 @@ const Reader = ({ chapterId, pageNumber, onPageChange, onBackToManga }) => {
       if (e.key === "f" || e.key === "F") {
         toggleMode();
       } else if (e.key === "ArrowRight") {
-        if (pageNumber < pages.length) {
-          onPageChange(pageNumber + 1);
-        } else {
-          onBackToManga();
-        }
+        pageNumber < pages.length ? onPageChange(pageNumber + 1) : onBackToManga();
       } else if (e.key === "ArrowLeft") {
-        if (pageNumber > 1) {
-          onPageChange(pageNumber - 1);
-        } else {
-          onBackToManga();
-        }
+        pageNumber > 1 ? onPageChange(pageNumber - 1) : onBackToManga();
       } else if (e.key === "Escape") {
         onBackToManga();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [pageNumber, pages.length]);
 
   const handleImageLoad = () => {
-    // delay kecil untuk menghindari flicker (misalnya gambar sudah cached)
     setTimeout(() => {
       setIsLoading(false);
-      setTimeout(() => setShowOverlay(false), 300); // delay hilangnya overlay biar smooth
+      setTimeout(() => setShowOverlay(false), 300);
     }, 150);
   };
 
@@ -68,9 +59,7 @@ const Reader = ({ chapterId, pageNumber, onPageChange, onBackToManga }) => {
     if (e.clientX < screenMiddle) {
       pageNumber > 1 ? onPageChange(pageNumber - 1) : onBackToManga();
     } else {
-      pageNumber < pages.length
-        ? onPageChange(pageNumber + 1)
-        : onBackToManga();
+      pageNumber < pages.length ? onPageChange(pageNumber + 1) : onBackToManga();
     }
   };
 
@@ -99,7 +88,6 @@ const Reader = ({ chapterId, pageNumber, onPageChange, onBackToManga }) => {
           />
         )}
 
-        {/* Overlay loading */}
         {showOverlay && (
           <div
             className={`fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-80 z-40 pointer-events-none transition-opacity duration-300 ${
