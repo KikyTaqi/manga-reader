@@ -13,7 +13,7 @@ const MangaList = ({ lang, searchQuery, pageNumber }) => {
         params.append("limit", 12);
         params.append("offset", (pageNumber - 1) * 12);
         params.append("includes[]", "cover_art");
-        params.append("availableTranslatedLanguage[]", lang);
+        params.append("lang", lang);
         if (searchQuery) params.append("title", searchQuery);
 
         const res = await axios.get(`/api/manga?${params}`);

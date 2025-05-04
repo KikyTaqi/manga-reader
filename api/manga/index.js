@@ -1,5 +1,5 @@
 export default async function handler(req, res) {
-    const { title, limit = 12, offset = 0, lang = "en" } = req.query;
+    const { title, limit = 12, offset = 0, lang } = req.query;
   
     const params = new URLSearchParams();
     params.append("limit", limit);
