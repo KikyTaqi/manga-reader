@@ -101,6 +101,7 @@ const Reader = ({ chapterId, pageNumber, onPageChange, onBackToManga }) => {
           <img
             src={pages[pageNumber - 1]}
             alt={`Page ${pageNumber}`}
+            referrerPolicy="no-referrer"
             onLoad={handleImageLoad}
             className={`select-none pt-13 sm:pt-0 ${
               mode === "fit" ? "max-h-screen" : "w-full object-contain"
