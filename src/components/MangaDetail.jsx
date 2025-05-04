@@ -20,7 +20,7 @@ const MangaDetail = ({ mangaId, lang, onSelectChapter }) => {
       setLoading(true);
       try {
         const [mangaRes, chaptersRes] = await Promise.all([
-          axios.get(`/api/manga/${mangaId}?includes[]=cover_art`),
+          axios.get(`/api/manga/detail?mangaId=${mangaId}&includes[]=cover_art`),
           axios.get(
             `/api/manga/${mangaId}/feed?translatedLanguage[]=${lang}&order[chapter]=asc`,
             {
