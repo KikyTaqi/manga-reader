@@ -103,7 +103,7 @@ const Reader = ({ chapterId, pageNumber, onPageChange, onBackToManga }) => {
             alt={`Page ${pageNumber}`}
             referrerPolicy="no-referrer"
             onLoad={handleImageLoad}
-            className={`select-none pt-13 sm:pt-0 ${
+            className={`select-none pt-16 sm:pt-0 ${
               mode === "fit" ? "max-h-screen" : "w-full object-contain"
             }`}
           />
