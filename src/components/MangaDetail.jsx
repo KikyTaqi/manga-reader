@@ -71,7 +71,7 @@ const MangaDetail = ({ mangaId, lang, onSelectChapter }) => {
     ? `https://uploads.mangadex.org/covers/${manga.id}/${cover.attributes.fileName}.256.jpg`
     : "";
 
-  const synopsis = manga.attributes.description || "No synopsis available.";
+  const synopsis = manga.attributes.description?.[lang] || "No synopsis available.";
   const genres = manga.attributes.tags || [];
 
   return (
