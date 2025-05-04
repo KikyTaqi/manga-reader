@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom"; // Tambahkan useLocation
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 
 const MangaDetail = ({ mangaId, lang, onSelectChapter }) => {
   const [manga, setManga] = useState(null);
   const [chapters, setChapters] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const location = useLocation(); // Tambahkan ini
+  const location = useLocation();
 
   const from = location.state?.from || "/";
 
@@ -15,23 +16,51 @@ const MangaDetail = ({ mangaId, lang, onSelectChapter }) => {
   };
 
   useEffect(() => {
-    axios
-      .get(`/api/manga/${mangaId}?includes[]=cover_art`) // ← gunakan proxy
-      .then((res) => setManga(res.data.data))
-      .catch((err) => console.error("Failed to fetch manga detail:", err));
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const [mangaRes, chaptersRes] = await Promise.all([
+          axios.get(`/api/manga/${mangaId}?includes[]=cover_art`),
+          axios.get(
+            `/api/manga/${mangaId}/feed?translatedLanguage[]=${lang}&order[chapter]=asc`,
+            {
+              headers: {
+                "Cache-Control": "no-cache",
+              },
+            }
+          )
+          .then((res) => {
+            console.log("Chapters response:", res.data); // ← CEK DATA DI SINI
+            setChapters(res.data.data || []);
+          })
+        ]);
 
-    axios
-      .get(
-        `/api/manga/${mangaId}/feed?translatedLanguage[]=${lang}&order[chapter]=asc` // ← gunakan proxy
-      )
-      .then((res) => setChapters(res.data.data))
-      .catch((err) => console.error("Failed to fetch chapters:", err));
+        setManga(mangaRes.data?.data || null);
+        setChapters(chaptersRes.data?.data || []);
+      } catch (err) {
+        console.error("Error fetching manga or chapters:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, [mangaId, lang]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-gray-100 dark:bg-gray-900">
+        <div className="text-lg text-gray-800 dark:text-white">Loading...</div>
+      </div>
+    );
+  }
 
   if (!manga) {
     return (
       <div className="flex justify-center items-center h-screen bg-gray-100 dark:bg-gray-900">
-        <div className="text-lg text-gray-800 dark:text-white">Loading...</div>
+        <div className="text-lg text-red-600 dark:text-red-400">
+          Manga not found.
+        </div>
       </div>
     );
   }
