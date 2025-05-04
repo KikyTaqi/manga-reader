@@ -12,12 +12,21 @@ const Reader = ({ chapterId, pageNumber, onPageChange, onBackToManga }) => {
       .get(`/api/manga/reader?chapterId=${chapterId}`)
       .then((res) => {
         const { baseUrl, chapter } = res.data;
+        if (!baseUrl || !chapter?.hash || !chapter?.data?.length) {
+          console.error("Invalid response format", res.data);
+          return;
+        }
+  
         const urls = chapter.data.map(
           (img) => `${baseUrl}/data/${chapter.hash}/${img}`
         );
         setPages(urls);
+      })
+      .catch((err) => {
+        console.error("Reader API error:", err);
       });
   }, [chapterId]);
+  
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
