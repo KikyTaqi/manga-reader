@@ -128,7 +128,7 @@ const Reader = ({ chapterId, pageNumber, onPageChange, onBackToManga }) => {
               e.stopPropagation();
               onBackToManga();
             }}
-            className="bg-black bg-opacity-60 text-white text-sm px-3 py-1 rounded"
+            className="bg-black bg-opacity-60 text-white text-sm px-3 py-1 rounded border border-gray-700"
           >
             ← Back
           </button>
@@ -137,14 +137,14 @@ const Reader = ({ chapterId, pageNumber, onPageChange, onBackToManga }) => {
               e.stopPropagation();
               toggleMode();
             }}
-            className="bg-black bg-opacity-60 text-white text-sm px-3 py-1 rounded sm:block"
+            className="bg-black bg-opacity-60 text-white text-sm px-3 py-1 rounded border border-gray-700 sm:block"
           >
             Mode: {mode === "fit" ? "Tinggi" : "Lebar"}
           </button>
         </div>
 
         <div className="pointer-events-auto">
-          <span className="bg-black bg-opacity-60 text-white text-sm px-3 py-1 rounded">
+          <span className="bg-black bg-opacity-60 text-white text-sm px-3 py-1 rounded border border-gray-700">
             Page {pageNumber} / {pages.length}
           </span>
         </div>
