@@ -89,6 +89,7 @@ const MangaDetail = ({ mangaId, lang, onSelectChapter }) => {
             <img
               src={coverUrl}
               alt="cover"
+              referrerPolicy="no-referrer"
               className="w-full h-auto rounded-lg shadow-md"
             />
           )}
