@@ -34,9 +34,13 @@ const MangaList = ({ lang, searchQuery, pageNumber }) => {
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         {Array.isArray(mangaList) &&
           mangaList.map((manga) => {
-            const cover = manga.relationships.find((r) => r.type === "cover_art");
-            const coverUrl = cover
-              ? `https://uploads.mangadex.org/covers/${manga.id}/${cover.attributes?.fileName}.256.jpg`
+            const cover = manga.relationships.find(
+              (r) => r.type === "cover_art"
+            );
+            const fileName = cover?.attributes?.fileName;
+
+            const coverUrl = fileName
+              ? `https://uploads.mangadex.org/covers/${manga.id}/${fileName}.256.jpg`
               : null;
 
             return (
@@ -46,12 +50,16 @@ const MangaList = ({ lang, searchQuery, pageNumber }) => {
                 state={{ from: window.location.pathname }}
                 className="cursor-pointer block dark:text-white"
               >
-                {coverUrl && (
+                {coverUrl ? (
                   <img
                     src={coverUrl}
                     alt="cover"
                     className="w-full aspect-w-2 aspect-h-3 object-cover rounded shadow-lg"
                   />
+                ) : (
+                  <div className="w-full aspect-[2/3] bg-gray-300 rounded shadow-inner flex items-center justify-center text-xs text-gray-600">
+                    No Cover
+                  </div>
                 )}
                 <h3 className="text-sm mt-2">
                   {manga.attributes.title?.en || "No Title"}

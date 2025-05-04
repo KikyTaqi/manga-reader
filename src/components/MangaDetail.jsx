@@ -16,13 +16,13 @@ const MangaDetail = ({ mangaId, lang, onSelectChapter }) => {
 
   useEffect(() => {
     axios
-      .get(`/api/manga/${mangaId}?includes[]=cover_art`) // ← gunakan proxy
+      .get(`/api/${mangaId}?includes[]=cover_art`) // ← gunakan proxy
       .then((res) => setManga(res.data.data))
       .catch((err) => console.error("Failed to fetch manga detail:", err));
 
     axios
       .get(
-        `/api/manga/${mangaId}/feed?translatedLanguage[]=${lang}&order[chapter]=asc` // ← gunakan proxy
+        `/api/${mangaId}/feed?translatedLanguage[]=${lang}&order[chapter]=asc` // ← gunakan proxy
       )
       .then((res) => setChapters(res.data.data))
       .catch((err) => console.error("Failed to fetch chapters:", err));
