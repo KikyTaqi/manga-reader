@@ -1,5 +1,5 @@
 export default async function handler(req, res) {
-  const { mangaId, lang = "en", limit, offset } = req.query;
+  const { mangaId, lang, limit, offset } = req.query;
 
   if (!mangaId) {
     return res.status(400).json({ error: "Missing mangaId" });
