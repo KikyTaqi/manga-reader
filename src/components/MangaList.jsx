@@ -55,6 +55,7 @@ const MangaList = ({ lang, searchQuery, pageNumber }) => {
                     src={coverUrl}
                     alt="cover"
                     referrerPolicy="no-referrer"
+                    loading="lazy"
                     className="w-full aspect-w-2 aspect-h-3 object-cover rounded shadow-lg"
                   />
                 ) : (
