@@ -22,7 +22,7 @@ const MangaDetail = ({ mangaId, lang, onSelectChapter }) => {
         const [mangaRes, chaptersRes] = await Promise.all([
           axios.get(`/api/manga/detail?mangaId=${mangaId}&includes[]=cover_art`),
           axios.get(
-            `/api/manga/${mangaId}/feed?translatedLanguage[]=${lang}&order[chapter]=asc`,
+            `/api/manga/chapter/feed?mangaId=${mangaId}&translatedLanguage[]=${lang}&order[chapter]=asc`,
             {
               headers: {
                 "Cache-Control": "no-cache",
