@@ -1,19 +1,11 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const Reader = ({ chapterId, pageNumber, onPageChange }) => {
+const Reader = ({ chapterId, pageNumber, onPageChange, onBackToManga }) => {
   const [pages, setPages] = useState([]);
   const [mode, setMode] = useState("fit");
   const [isLoading, setIsLoading] = useState(true);
   const [showOverlay, setShowOverlay] = useState(true); // untuk transisi halus
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  const onBackToManga = () => {
-    const from = location.state?.from || "/";
-    navigate(from);
-  };
 
   useEffect(() => {
     axios
