@@ -8,6 +8,7 @@ const MangaDetail = ({ mangaId, lang, onSelectChapter }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const from = location.state?.from || "/";
 
@@ -88,15 +89,23 @@ const MangaDetail = ({ mangaId, lang, onSelectChapter }) => {
 
       <div className="flex flex-col sm:flex-row items-center mb-6">
         <div className="w-full sm:w-1/3 mb-4 sm:mb-0">
-          {coverUrl && (
-            <img
-              src={coverUrl}
-              alt="cover"
-              referrerPolicy="no-referrer"
-              loading="lazy"
-              className="w-full h-auto rounded-lg shadow-md"
-            />
-          )}
+          <div className="w-full sm:w-1/3 mb-4 sm:mb-0 relative">
+            {!imageLoaded && (
+              <div className="w-full aspect-[2/3] bg-gray-300 dark:bg-gray-700 animate-pulse rounded-lg" />
+            )}
+            {coverUrl && (
+              <img
+                src={coverUrl}
+                alt="cover"
+                referrerPolicy="no-referrer"
+                loading="lazy"
+                className={`w-full h-auto rounded-lg shadow-md transition-opacity duration-500 ${
+                  imageLoaded ? "opacity-100" : "opacity-0 absolute"
+                }`}
+                onLoad={() => setImageLoaded(true)}
+              />
+            )}
+          </div>
         </div>
         <div className="sm:w-2/3 sm:ml-6">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
