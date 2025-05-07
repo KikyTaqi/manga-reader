@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 const MangaList = ({ lang, searchQuery, pageNumber }) => {
   const [mangaList, setMangaList] = useState([]);
   const [total, setTotal] = useState(0);
+  const [loadedImages, setLoadedImages] = useState({});
 
   useEffect(() => {
     const fetchManga = async () => {
@@ -19,6 +20,7 @@ const MangaList = ({ lang, searchQuery, pageNumber }) => {
         const res = await axios.get(`/api/manga?${params}`);
         setMangaList(res.data.data);
         setTotal(res.data.total);
+        setLoadedImages({}); // Reset skeleton state when data changes
       } catch (error) {
         console.error("Error fetching manga:", error);
       }
@@ -54,20 +56,33 @@ const MangaList = ({ lang, searchQuery, pageNumber }) => {
                 state={{ from: window.location.pathname }}
                 className="cursor-pointer block dark:text-white"
               >
-                {coverUrl ? (
-                  <img
-                    src={coverUrl}
-                    alt="cover"
-                    referrerPolicy="no-referrer"
-                    loading="lazy"
-                    className="w-full aspect-w-2 aspect-h-3 object-cover rounded shadow-lg"
-                  />
-                ) : (
-                  <div className="w-full aspect-[2/3] bg-gray-300 rounded shadow-inner flex items-center justify-center text-xs text-gray-600">
-                    No Cover
-                  </div>
-                )}
-                <h3 className="text-sm mt-2">
+                <div className="relative w-full aspect-[2/3] rounded shadow-lg overflow-hidden bg-gray-200 dark:bg-gray-800">
+                  {!loadedImages[manga.id] && (
+                    <div className="absolute inset-0 animate-pulse bg-gray-300 dark:bg-gray-700"></div>
+                  )}
+                  {coverUrl ? (
+                    <img
+                      src={coverUrl}
+                      alt="cover"
+                      referrerPolicy="no-referrer"
+                      loading="lazy"
+                      onLoad={() =>
+                        setLoadedImages((prev) => ({
+                          ...prev,
+                          [manga.id]: true,
+                        }))
+                      }
+                      className={`w-full h-full object-cover transition-opacity duration-300 ${
+                        loadedImages[manga.id] ? "opacity-100" : "opacity-0"
+                      }`}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300">
+                      No Cover
+                    </div>
+                  )}
+                </div>
+                <h3 className="text-sm mt-2 truncate">
                   {manga.attributes.title?.en || "No Title"}
                 </h3>
               </Link>
