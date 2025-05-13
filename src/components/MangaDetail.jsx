@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
+import { USE_OFFICIAL_API } from "../config";
 
 const MangaDetail = ({ mangaId, lang, onSelectChapter }) => {
   const [manga, setManga] = useState(null);
@@ -9,11 +10,34 @@ const MangaDetail = ({ mangaId, lang, onSelectChapter }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [readChapters, setReadChapters] = useState([]);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   const from = location.state?.from || "/";
 
   const handleBack = () => {
     navigate(from);
+  };
+
+  useEffect(() => {
+    const storedChapters =
+      JSON.parse(localStorage.getItem(`readChapters-${mangaId}`)) || [];
+    setReadChapters(storedChapters);
+  }, [mangaId]);
+
+  const markChapterAsRead = (chapterId) => {
+    const updatedChapters = [...new Set([...readChapters, chapterId])];
+    setReadChapters(updatedChapters);
+    localStorage.setItem(
+      `readChapters-${mangaId}`,
+      JSON.stringify(updatedChapters)
+    );
+  };
+
+  const resetReadChapters = () => {
+    localStorage.removeItem(`readChapters-${mangaId}`);
+    setReadChapters([]);
+    setShowResetConfirm(false); // Tutup popup konfirmasi
   };
 
   useEffect(() => {
@@ -24,18 +48,23 @@ const MangaDetail = ({ mangaId, lang, onSelectChapter }) => {
     const fetchData = async () => {
       setLoading(true);
       try {
+        // const useOfficialApi = true; // false = pakai API sendiri, true = pakai API MangaDex langsung
+
+        const detailUrl = USE_OFFICIAL_API
+          ? `https://api.mangadex.org/manga/${mangaId}?includes[]=cover_art`
+          : `/api/manga/detail?mangaId=${mangaId}&includes[]=cover_art`;
+
+        const chapterUrl = USE_OFFICIAL_API
+          ? `https://api.mangadex.org/manga/${mangaId}/feed?translatedLanguage[]=${lang}&order[chapter]=asc`
+          : `/api/manga/chapter/feed?mangaId=${mangaId}&lang=${lang}&order[chapter]=asc`;
+
         const [mangaRes, chaptersRes] = await Promise.all([
-          axios.get(
-            `/api/manga/detail?mangaId=${mangaId}&includes[]=cover_art`
-          ),
-          axios.get(
-            `/api/manga/chapter/feed?mangaId=${mangaId}&lang=${lang}&order[chapter]=asc`,
-            {
-              headers: {
-                "Cache-Control": "no-cache",
-              },
-            }
-          ),
+          axios.get(detailUrl),
+          axios.get(chapterUrl, {
+            headers: {
+              "Cache-Control": "no-cache",
+            },
+          }),
         ]);
 
         setManga(mangaRes.data?.data || null);
@@ -89,23 +118,21 @@ const MangaDetail = ({ mangaId, lang, onSelectChapter }) => {
 
       <div className="flex flex-col sm:flex-row items-center mb-6">
         <div className="w-full sm:w-1/3 mb-4 sm:mb-0">
-          <div className="w-full sm:w-1/3 mb-4 sm:mb-0 relative">
-            {!imageLoaded && (
-              <div className="w-full aspect-[2/3] bg-gray-300 dark:bg-gray-700 animate-pulse rounded-lg" />
-            )}
-            {coverUrl && (
-              <img
-                src={coverUrl}
-                alt="cover"
-                referrerPolicy="no-referrer"
-                loading="lazy"
-                className={`w-full h-auto rounded-lg shadow-md transition-opacity duration-500 ${
-                  imageLoaded ? "opacity-100" : "opacity-0 absolute"
-                }`}
-                onLoad={() => setImageLoaded(true)}
-              />
-            )}
-          </div>
+          {!imageLoaded && (
+            <div className="w-full aspect-[2/3] bg-gray-300 dark:bg-gray-700 animate-pulse rounded-lg" />
+          )}
+          {coverUrl && (
+            <img
+              src={coverUrl}
+              alt="cover"
+              referrerPolicy="no-referrer"
+              loading="lazy"
+              className={`w-full h-auto rounded-lg shadow-md transition-opacity duration-500 ${
+                imageLoaded ? "opacity-100" : "opacity-0 absolute"
+              }`}
+              onLoad={() => setImageLoaded(true)}
+            />
+          )}
         </div>
         <div className="sm:w-2/3 sm:ml-6">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
@@ -139,16 +166,55 @@ const MangaDetail = ({ mangaId, lang, onSelectChapter }) => {
       </div>
 
       <div>
-        <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
-          Chapters:
-        </h2>
+        <div className="flex justify-between mb-4">
+          <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
+            Chapters:
+          </h2>
+
+          <button
+            onClick={() => setShowResetConfirm(true)}
+            className="px-4 py-2 bg-red-500 text-white rounded-md"
+          >
+            Reset Read Chapters
+          </button>
+        </div>
+
+        {showResetConfirm && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white p-4 rounded-md shadow-lg">
+              <p>Are you sure you want to reset read chapters?</p>
+              <div className="flex gap-2 mt-4 justify-end">
+                <button
+                  onClick={resetReadChapters}
+                  className="mt-4 px-4 py-2 bg-red-500 text-white rounded-md cursor-pointer"
+                >
+                  Yes
+                </button>
+                <button
+                  onClick={() => setShowResetConfirm(false)}
+                  className="mt-4 px-4 py-2 text-white rounded-md bg-gray-400 cursor-pointer"
+                >
+                  No
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <ul className="space-y-2">
           {chapters.length > 0 ? (
             chapters.map((chapter) => (
               <li key={chapter.id}>
                 <button
-                  onClick={() => onSelectChapter(chapter)}
-                  className="w-full text-left px-4 py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md border border-gray-300 dark:border-gray-600 shadow-sm transition-all duration-200"
+                  onClick={() => {
+                    markChapterAsRead(chapter.id);
+                    onSelectChapter(chapter);
+                  }}
+                  className={`w-full text-left px-4 py-3 ${
+                    readChapters.includes(chapter.id)
+                      ? "bg-blue-300 dark:bg-blue-500 hover:bg-blue-200 dark:hover:bg-blue-400"
+                      : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600"
+                  }  rounded-md border border-gray-300 dark:border-gray-600 shadow-sm transition-all duration-200`}
                 >
                   <span className="font-semibold text-gray-900 dark:text-white">
                     Chapter {chapter.attributes.chapter || "?"}

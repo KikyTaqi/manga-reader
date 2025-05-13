@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { USE_OFFICIAL_API } from "../config";
 
 const Reader = ({ chapterId, pageNumber, onPageChange, onBackToManga }) => {
   const [pages, setPages] = useState([]);
@@ -7,25 +8,73 @@ const Reader = ({ chapterId, pageNumber, onPageChange, onBackToManga }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [showOverlay, setShowOverlay] = useState(true); // untuk transisi halus
 
+
   useEffect(() => {
-    axios
-      .get(`/api/manga/reader?chapterId=${chapterId}`)
-      .then((res) => {
-        const { baseUrl, chapter } = res.data;
-        if (!baseUrl || !chapter?.hash || !chapter?.data?.length) {
-          console.error("Invalid response format", res.data);
-          return;
-        }
+    const fetchPages = async () => {
+      // const useOfficialApi = true; // 🔁 Ubah ke false untuk pakai API internal
   
-        const urls = chapter.data.map(
-          (img) => `${baseUrl}/data/${chapter.hash}/${img}`
-        );
-        setPages(urls);
-      })
-      .catch((err) => {
-        console.error("Reader API error:", err);
-      });
+      try {
+        let baseUrl, chapter;
+  
+        if (USE_OFFICIAL_API) {
+          // 1. Fetch base URL
+          const res = await axios.get(`https://api.mangadex.org/at-home/server/${chapterId}`);
+          baseUrl = res.data.baseUrl;
+          chapter = res.data.chapter;
+  
+          if (!baseUrl || !chapter?.hash || !chapter?.data?.length) {
+            console.error("Invalid MangaDex response", { baseUrl, chapter });
+            return;
+          }
+  
+          const urls = chapter.data.map(
+            (img) => `${baseUrl}/data/${chapter.hash}/${img}`
+          );
+          setPages(urls);
+        } else {
+          // Gunakan API internal
+          const res = await axios.get(`/api/manga/reader?chapterId=${chapterId}`);
+          baseUrl = res.data.baseUrl;
+          chapter = res.data.chapter;
+  
+          if (!baseUrl || !chapter?.hash || !chapter?.data?.length) {
+            console.error("Invalid internal API response", res.data);
+            return;
+          }
+  
+          const urls = chapter.data.map(
+            (img) => `${baseUrl}/data/${chapter.hash}/${img}`
+          );
+          setPages(urls);
+        }
+      } catch (err) {
+        console.error("Error fetching reader pages:", err);
+      }
+    };
+  
+    fetchPages();
   }, [chapterId]);
+  
+
+  // useEffect(() => {
+  //   axios
+  //     .get(`/api/manga/reader?chapterId=${chapterId}`)
+  //     .then((res) => {
+  //       const { baseUrl, chapter } = res.data;
+  //       if (!baseUrl || !chapter?.hash || !chapter?.data?.length) {
+  //         console.error("Invalid response format", res.data);
+  //         return;
+  //       }
+  
+  //       const urls = chapter.data.map(
+  //         (img) => `${baseUrl}/data/${chapter.hash}/${img}`
+  //       );
+  //       setPages(urls);
+  //     })
+  //     .catch((err) => {
+  //       console.error("Reader API error:", err);
+  //     });
+  // }, [chapterId]);
   
 
   useEffect(() => {
